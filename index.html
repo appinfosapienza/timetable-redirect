@@ -1,11 +1,36 @@
 <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        .alert {
+            padding: 20px;
+            background-color: #F44336;
+            color: white;
+        }
+        </style>
+        <title>Redirect lezioni</title>
+    </head>
     <body>
+        <div class="alert" id="no-lesson-found-box" style="display: none">
+            <b>Errore!</b> Nessuna lezione trovata.
+        </div>
+
+        <noscript>
+            <div class="alert">
+                <b>Errore!</b> JavaScript richiesto.
+            </div>
+        </noscript>
+
         <script>
+            const noLessonFoundBox = document.getElementById('no-lesson-found-box');
+
             const MINUTES_EARLY = 15;
-            const weekDays = [ 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM' ];
+            const WEEK_DAYS = [ 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM' ];
+
             const today = new Date(Date.now() - 20*60000);
-            const todayWeekDay = weekDays[today.getDay() - 1];
+            const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
             const currentHour = today.getHours();
+
             fetch('https://raw.githubusercontent.com/appinfosapienza/UniBotJS/main/resources/lezioni.json')
                 .then(response => response.json())
                 .then(timetable => {
@@ -19,9 +44,11 @@
                     }).filter(lesson => lesson.day === todayWeekDay)
                         .filter(lesson => lesson.from <= currentHour)
                         .filter(lesson => lesson.to > currentHour)[0];
-                    console.log(currentLesson);
-                    console.log(timetable);
-                    window.location = currentLesson.url;
+
+                    if (currentLesson)
+                        window.location = currentLesson.url;
+                    else
+                        noLessonFoundBox.style.display = 'block';
                 });
         </script>
     </body>
