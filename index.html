@@ -27,7 +27,7 @@
             const MINUTES_EARLY = 15;
             const WEEK_DAYS = [ 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM' ];
 
-            const today = new Date(Date.now() - MINUTES_EARLY*60000);
+            const today = new Date(Date.now() + MINUTES_EARLY*60000);
             const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
             const currentHour = today.getHours();
 
