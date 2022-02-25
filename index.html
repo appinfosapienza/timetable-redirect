@@ -1,0 +1,28 @@
+<html>
+    <body>
+        <script>
+            const MINUTES_EARLY = 15;
+            const weekDays = [ 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM' ];
+            const today = new Date(Date.now() - 20*60000);
+            const todayWeekDay = weekDays[today.getDay() - 1];
+            const currentHour = today.getHours();
+            fetch('https://raw.githubusercontent.com/appinfosapienza/UniBotJS/main/resources/lezioni.json')
+                .then(response => response.json())
+                .then(timetable => {
+                    const currentLesson = timetable.flatMap(lesson => {
+                        return lesson.quando.map(quando => ({
+                            day: quando[0],
+                            from: quando[1],
+                            to: quando[2],
+                            url: lesson.urlLezione.match(/(https?:[^\s]+)/)[1],
+                        }));
+                    }).filter(lesson => lesson.day === todayWeekDay)
+                        .filter(lesson => lesson.from <= currentHour)
+                        .filter(lesson => lesson.to > currentHour)[0];
+                    console.log(currentLesson);
+                    console.log(timetable);
+                    window.location = currentLesson.url;
+                });
+        </script>
+    </body>
+</html>
