@@ -50,7 +50,7 @@
                             day: quando[0],
                             from: quando[1],
                             to: quando[2],
-                            url: lesson.urlLezione.match(/(https?:[^\s]+)/)[1],
+                            url: lesson.urlLezione,
                         }));
                     }).filter(lesson => lesson.day === todayWeekDay)
                         .filter(lesson => lesson.from <= currentHour)
