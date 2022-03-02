@@ -1,66 +1,114 @@
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
 
-        <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-        }
+    <style>
+      body {
+        font-family: "Open Sans", sans-serif;
+      }
 
-        .alert {
-            padding: 20px;
-            background-color: #F44336;
-            color: white;
-        }
-        </style>
+      .alert {
+        padding: 20px;
+        background-color: #f44336;
+        color: white;
+      }
 
-        <title>Redirect lezioni</title>
-    </head>
+      table {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+      }
 
-    <body>
-        <div class="alert" id="no-lesson-found-box" style="display: none">
-            <b>Errore!</b> Nessuna lezione trovata.
-        </div>
+      table td,
+      table th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
 
-        <noscript>
-            <div class="alert">
-                <b>Errore!</b> JavaScript richiesto.
-            </div>
-        </noscript>
+      table th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        background-color: #04aa6d;
+        color: white;
+      }
+    </style>
 
-        <script>
-            const noLessonFoundBox = document.getElementById('no-lesson-found-box');
+    <title>Redirect lezioni</title>
+  </head>
 
-            const MINUTES_EARLY = 15;
-            const WEEK_DAYS = [ 'LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM' ];
+  <body>
+    <div class="alert" id="no-lesson-found-box" style="display: none">
+      <b>Errore!</b> Nessuna lezione trovata.
+    </div>
 
-            const today = new Date(Date.now() + MINUTES_EARLY*60000);
-            const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
-            const currentHour = today.getHours();
+    <noscript>
+      <div class="alert"><b>Errore!</b> JavaScript richiesto.</div>
+    </noscript>
 
-            fetch('https://raw.githubusercontent.com/appinfosapienza/UniBotJS/main/resources/lezioni.json')
-                .then(response => response.json())
-                .then(timetable => {
-                    const currentLesson = timetable.flatMap(lesson => {
-                        return lesson.quando.map(quando => ({
-                            day: quando[0],
-                            from: quando[1],
-                            to: quando[2],
-                            url: lesson.urlLezione,
-                        }));
-                    }).filter(lesson => lesson.day === todayWeekDay)
-                        .filter(lesson => lesson.from <= currentHour)
-                        .filter(lesson => lesson.to > currentHour)[0];
+    <table id="lessons-table" style="display: none">
+      <tr>
+        <th>Lezione</th>
+        <th>Ora</th>
+        <th>Link</th>
+      </tr>
+      <!-- Rows are populated in JavaScript -->
+    </table>
 
-                    if (currentLesson)
-                        window.location = currentLesson.url;
-                    else
-                        noLessonFoundBox.style.display = 'block';
-                });
-        </script>
-    </body>
+    <script>
+      const noLessonFoundBox = document.getElementById("no-lesson-found-box");
+      const lessonsTable = document.getElementById("lessons-table");
+
+      const WEEK_DAYS = ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"];
+
+      const today = new Date();
+      const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
+
+      fetch(
+        "https://raw.githubusercontent.com/appinfosapienza/UniBotJS/main/resources/lezioni.json"
+      )
+        .then((response) => response.json())
+        .then((timetable) => {
+          const todayLessons = timetable
+            .flatMap((lesson) => {
+              return lesson.quando.map((quando) => ({
+                name: lesson.nome,
+                day: quando[0],
+                from: quando[1],
+                to: quando[2],
+                url: lesson.urlLezione,
+              }));
+            })
+            .filter((lesson) => lesson.day === todayWeekDay);
+
+          if (todayLessons.length > 0) {
+            lessonsTable.style.display = "table";
+            todayLessons.forEach((lesson, index) => {
+              const row = lessonsTable.insertRow(index + 1);
+              // Opposite order
+              const linkCell = row.insertCell(0);
+              const timeCell = row.insertCell(0);
+              const nameCell = row.insertCell(0);
+
+              nameCell.innerText = lesson.name;
+              timeCell.innerText = lesson.from + " - " + lesson.to;
+              const linkElement = document.createElement("a");
+              linkElement.href = lesson.url;
+              linkElement.innerText = "Entra";
+              linkCell.appendChild(linkElement);
+            });
+          } else {
+            noLessonFoundBox.style.display = "block";
+          }
+        });
+    </script>
+  </body>
 </html>
