@@ -90,6 +90,8 @@
             })
             .filter((lesson) => lesson.day === todayWeekDay);
 
+          todayLessons.sort((a, b) => a.from - b.from);
+
           if (todayLessons.length > 0) {
             lessonsTable.style.display = "table";
             todayLessons.forEach((lesson, index) => {
