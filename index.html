@@ -1,117 +1,116 @@
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;700&display=swap"
-      rel="stylesheet"
-    />
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <style>
-      body {
-        font-family: "Open Sans", sans-serif;
-      }
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;700&display=swap" rel="stylesheet" />
 
-      .alert {
-        padding: 20px;
-        background-color: #f44336;
-        color: white;
-      }
+  <style>
+    body {
+      font-family: "Open Sans", sans-serif;
+    }
 
-      table {
-        font-family: Arial, Helvetica, sans-serif;
-        border-collapse: collapse;
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-      }
+    .alert {
+      padding: 20px;
+      background-color: #f44336;
+      color: white;
+    }
 
-      table td,
-      table th {
-        border: 1px solid #ddd;
-        padding: 8px;
-      }
+    table {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-      table th {
-        padding-top: 12px;
-        padding-bottom: 12px;
-        background-color: #04aa6d;
-        color: white;
-      }
-    </style>
+    table td,
+    table th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
 
-    <title>Redirect lezioni</title>
-  </head>
+    table th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      background-color: #04aa6d;
+      color: white;
+    }
+  </style>
 
-  <body>
-    <div class="alert" id="no-lesson-found-box" style="display: none">
-      <b>Errore!</b> Nessuna lezione trovata.
-    </div>
+  <title>Redirect lezioni</title>
+</head>
 
-    <noscript>
-      <div class="alert"><b>Errore!</b> JavaScript richiesto.</div>
-    </noscript>
+<body>
+  <div class="alert" id="no-lesson-found-box" style="display: none">
+    <b>Errore!</b> Nessuna lezione trovata.
+  </div>
 
-    <table id="lessons-table" style="display: none">
-      <tr>
-        <th>Lezione</th>
-        <th>Ora</th>
-        <th>Link</th>
-      </tr>
-      <!-- Rows are populated in JavaScript -->
-    </table>
+  <noscript>
+    <div class="alert"><b>Errore!</b> JavaScript richiesto.</div>
+  </noscript>
 
-    <script>
-      const noLessonFoundBox = document.getElementById("no-lesson-found-box");
-      const lessonsTable = document.getElementById("lessons-table");
+  <table id="lessons-table" style="display: none">
+    <tr>
+      <th>Lezione</th>
+      <th>Ora</th>
+      <th>Link</th>
+    </tr>
+    <!-- Rows are populated in JavaScript -->
+  </table>
 
-      const WEEK_DAYS = ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"];
+  <script>
+    const noLessonFoundBox = document.getElementById("no-lesson-found-box");
+    const lessonsTable = document.getElementById("lessons-table");
 
-      const today = new Date();
-      const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
+    const WEEK_DAYS = ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"];
 
-      fetch(
-        "https://raw.githubusercontent.com/appinfosapienza/timetable-redirect/main/lezioni.json",
-        { cache: "no-store" }
-      )
-        .then((response) => response.json())
-        .then((timetable) => {
-          const todayLessons = timetable
-            .flatMap((lesson) => {
-              return lesson.quando.map((quando) => ({
-                name: lesson.nome,
-                day: quando[0],
-                from: quando[1],
-                to: quando[2],
-                url: lesson.urlLezione,
-              }));
-            })
-            .filter((lesson) => lesson.day === todayWeekDay);
+    const today = new Date();
+    const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
 
-          todayLessons.sort((a, b) => a.from - b.from);
+    fetch(
+      "https://nextcloud.pizzari.me/apps/sharingpath/Lezioni/lezioni.json",
+      { cache: "no-store" }
+    )
+      .then((response) => response.json())
+      .then((timetable) => {
+        const todayLessons = timetable
+          .flatMap((lesson) => {
+            return lesson.quando.map((quando) => ({
+              name: lesson.nome,
+              day: quando[0],
+              from: quando[1],
+              to: quando[2],
+              url: lesson.urlLezione,
+            }));
+          })
+          .filter((lesson) => lesson.day === todayWeekDay);
 
-          if (todayLessons.length > 0) {
-            lessonsTable.style.display = "table";
-            todayLessons.forEach((lesson, index) => {
-              const row = lessonsTable.insertRow(index + 1);
-              // Opposite order
-              const linkCell = row.insertCell(0);
-              const timeCell = row.insertCell(0);
-              const nameCell = row.insertCell(0);
+        todayLessons.sort((a, b) => a.from - b.from);
 
-              nameCell.innerText = lesson.name;
-              timeCell.innerText = lesson.from + " - " + lesson.to;
-              const linkElement = document.createElement("a");
-              linkElement.href = lesson.url;
-              linkElement.innerText = "Entra";
-              linkCell.appendChild(linkElement);
-            });
-          } else {
-            noLessonFoundBox.style.display = "block";
-          }
-        });
-    </script>
-  </body>
+        if (todayLessons.length > 0) {
+          lessonsTable.style.display = "table";
+          todayLessons.forEach((lesson, index) => {
+            const row = lessonsTable.insertRow(index + 1);
+            // Opposite order
+            const linkCell = row.insertCell(0);
+            const timeCell = row.insertCell(0);
+            const nameCell = row.insertCell(0);
+
+            nameCell.innerText = lesson.name;
+            timeCell.innerText = lesson.from + " - " + lesson.to;
+            const linkElement = document.createElement("a");
+            linkElement.href = lesson.url;
+            linkElement.innerText = "Entra";
+            linkCell.appendChild(linkElement);
+          });
+        } else {
+          noLessonFoundBox.style.display = "block";
+        }
+      });
+  </script>
+</body>
+
 </html>
