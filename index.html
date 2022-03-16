@@ -12,6 +12,11 @@
       font-family: "Open Sans", sans-serif;
     }
 
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
     .alert {
       padding: 20px;
       background-color: #f44336;
@@ -22,8 +27,6 @@
       font-family: Arial, Helvetica, sans-serif;
       border-collapse: collapse;
       width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
     }
 
     table td,
@@ -44,22 +47,31 @@
 </head>
 
 <body>
-  <div class="alert" id="no-lesson-found-box" style="display: none">
-    <b>Errore!</b> Nessuna lezione trovata.
+  <div class="container">
+    <div class="alert" id="no-lesson-found-box" style="display: none">
+      <b>Errore!</b> Nessuna lezione trovata.
+    </div>
+
+    <noscript>
+      <div class="alert"><b>Errore!</b> JavaScript richiesto.</div>
+    </noscript>
+
+    <table id="lessons-table" style="display: none">
+      <tr>
+        <th>Lezione</th>
+        <th>Ora</th>
+        <th>Link</th>
+      </tr>
+      <!-- Rows are populated in JavaScript -->
+    </table>
+
+    <p>
+      <a href="https://github.com/appinfosapienza/timetable-redirect/blob/main/lezioni.json">
+        <small>Visualizza JSON sorgente</small>
+      </a>
+    </p>
+
   </div>
-
-  <noscript>
-    <div class="alert"><b>Errore!</b> JavaScript richiesto.</div>
-  </noscript>
-
-  <table id="lessons-table" style="display: none">
-    <tr>
-      <th>Lezione</th>
-      <th>Ora</th>
-      <th>Link</th>
-    </tr>
-    <!-- Rows are populated in JavaScript -->
-  </table>
 
   <script>
     const noLessonFoundBox = document.getElementById("no-lesson-found-box");
@@ -72,9 +84,7 @@
 
     fetch(
       "https://raw.githubusercontent.com/appinfosapienza/timetable-redirect/main/lezioni.json",
-      {
-        cache: "no-store"
-      }
+      { cache: "no-store" }
     )
       .then((response) => response.json())
       .then((timetable) => {
