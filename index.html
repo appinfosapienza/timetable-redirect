@@ -48,9 +48,7 @@
 
 <body>
   <div class="container">
-    <div class="alert" id="no-lesson-found-box" style="display: none">
-      <b>Errore!</b> Nessuna lezione trovata.
-    </div>
+    <div class="alert" id="error-box" style="display: none"></div>
 
     <noscript>
       <div class="alert"><b>Errore!</b> JavaScript richiesto.</div>
@@ -74,13 +72,18 @@
   </div>
 
   <script>
-    const noLessonFoundBox = document.getElementById("no-lesson-found-box");
+    const errorBox = document.getElementById("error-box");
     const lessonsTable = document.getElementById("lessons-table");
 
     const WEEK_DAYS = ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"];
 
     const today = new Date();
     const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
+
+    function showError(error) {
+      errorBox.style.display = 'block';
+      errorBox.innerText = error.toString();
+    }
 
     fetch(
       "https://raw.githubusercontent.com/appinfosapienza/timetable-redirect/main/lezioni.json",
@@ -119,8 +122,10 @@
             linkCell.appendChild(linkElement);
           });
         } else {
-          noLessonFoundBox.style.display = "block";
+          throw new Error("Nessuna lezione trovata.");
         }
+      }).catch(err => {
+        showError(err);
       });
   </script>
 </body>
