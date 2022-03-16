@@ -72,7 +72,10 @@
 
     fetch(
       "https://nextcloud.pizzari.me/apps/sharingpath/Lezioni/lezioni.json",
-      { cache: "no-store" }
+      {
+        cache: "no-store",
+        mode: "no-cors"
+      }
     )
       .then((response) => response.json())
       .then((timetable) => {
