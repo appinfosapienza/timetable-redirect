@@ -71,10 +71,9 @@
     const todayWeekDay = WEEK_DAYS[today.getDay() - 1];
 
     fetch(
-      "https://nextcloud.pizzari.me/apps/sharingpath/Lezioni/lezioni.json",
+      "https://raw.githubusercontent.com/appinfosapienza/timetable-redirect/main/lezioni.json",
       {
-        cache: "no-store",
-        mode: "no-cors"
+        cache: "no-store"
       }
     )
       .then((response) => response.json())
